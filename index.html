@@ -297,7 +297,7 @@
                 if (response.ok) {
                     const manifest = await response.json();
                     slides = manifest.map(filename => ({
-                        src: `.images/${filename}`,
+                        src: `./images/${filename}`,
                         name: filename.replace(/\.[^/.]+$/, '')
                     }));
                 } else {
