@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slideshow Foto</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1000px;
+            background: rgba(22, 33, 62, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .slideshow-wrapper {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .slideshow {
+            position: relative;
+            width: 100%;
+            padding-bottom: 75%;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            padding: 30px 20px 20px;
+            font-size: 18px;
+            font-weight: 500;
+            text-align: center;
+            word-wrap: break-word;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .counter {
+            font-size: 16px;
+            font-weight: 600;
+            min-width: 120px;
+            text-align: center;
+            background: rgba(102, 126, 234, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s linear;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(255, 255, 255, 0.6);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-arrow.prev {
+            left: 15px;
+        }
+
+        .nav-arrow.next {
+            right: 15px;
+        }
+
+        .no-images {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .caption {
+                font-size: 14px;
+                padding: 20px 15px 15px;
+            }
+
+            .nav-arrow {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+
+            .counter {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="slideshow-wrapper">
+            <div class="slideshow" id="slideshow">
+                <!-- I slide vengono inseriti qui via JavaScript -->
+            </div>
+            <button class="nav-arrow prev" id="prevBtn" onclick="previousSlide()">❮</button>
+            <button class="nav-arrow next" id="nextBtn" onclick="nextSlide()">❯</button>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="controls">
+            <button id="playPauseBtn" onclick="togglePlayPause()">⏸ Pausa</button>
+            <button onclick="previousSlide()">⬅ Precedente</button>
+            <button onclick="nextSlide()">Successivo ➡</button>
+            <div class="counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">0</span>
+            </div>
+        </div>
+
+        <div class="info">
+            <p>💡 Protezione attiva: il download è disabilitato</p>
+        </div>
+    </div>
+
+    <script>
+        let slides = [];
+        let currentSlideIndex = 0;
+        let isPlaying = true;
+        let autoPlayInterval;
+        const AUTO_PLAY_INTERVAL = 4000; // 4 secondi tra una foto e l'altra
+
+        // Blocca il destro del mouse e le azioni di copia
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 's')) e.preventDefault();
+            if (e.key === 'PrintScreen') e.preventDefault();
+        });
+
+        // Blocca drag and drop
+        document.addEventListener('dragstart', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => e.preventDefault());
+
+        async function loadImages() {
+            try {
+                // Prova a caricare il manifest JSON (se disponibile)
+                const response = await fetch('./images-manifest.json');
+                if (response.ok) {
+                    const manifest = await response.json();
+                    slides = manifest.map(filename => ({
+                        src: `./images/${filename}`,
+                        name: filename.replace(/\.[^/.]+$/, '')
+                    }));
+                } else {
+                    // Fallback: carica manualmente aggiungendo le immagini
+                    slides = await loadImagesManually();
+                }
+            } catch (error) {
+                console.log('Caricamento da manifest non disponibile, provo con API');
+                slides = await loadImagesWithAPI();
+            }
+
+            if (slides.length === 0) {
+                showNoImages();
+                return;
+            }
+
+            renderSlideshow();
+            startAutoPlay();
+        }
+
+        async function loadImagesWithAPI() {
+            try {
+                const response = await fetch('./images/');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const links = doc.querySelectorAll('a');
+                
+                const imageFiles = Array.from(links)
+                    .map(a => a.getAttribute('href'))
+                    .filter(href => /\.(jpg|jpeg|png|gif|webp)$/i.test(href))
+                    .sort();
+
+                return imageFiles.map(filename => ({
+                    src: `./images/${filename}`,
+                    name: filename.replace(/\.[^/.]+$/, '')
+                }));
+            } catch (error) {
+                console.log('Impossibile caricare da API, aggiungi manualmente le foto');
+                return [];
+            }
+        }
+
+        function loadImagesManually() {
+            // Se usi un server che supporta listing, aggiungi i nomi qui manualmente
+            // O usa un manifest JSON
+            return [];
+        }
+
+        function renderSlideshow() {
+            const slideshowDiv = document.getElementById('slideshow');
+            slideshowDiv.innerHTML = '';
+
+            slides.forEach((slide, index) => {
+                const slideDiv = document.createElement('div');
+                slideDiv.className = `slide ${index === 0 ? 'active' : ''}`;
+                slideDiv.innerHTML = `
+                    <img src="${slide.src}" alt="${slide.name}" oncontextmenu="return false">
+                    <div class="caption">${slide.name}</div>
+                `;
+                slideshowDiv.appendChild(slideDiv);
+            });
+
+            document.getElementById('totalSlides').textContent = slides.length;
+            updateCounter();
+        }
+
+        function showSlide(index) {
+            if (slides.length === 0) return;
+
+            if (index >= slides.length) {
+                currentSlideIndex = 0;
+            } else if (index < 0) {
+                currentSlideIndex = slides.length - 1;
+            } else {
+                currentSlideIndex = index;
+            }
+
+            const allSlides = document.querySelectorAll('.slide');
+            allSlides.forEach(slide => slide.classList.remove('active'));
+            allSlides[currentSlideIndex].classList.add('active');
+
+            updateCounter();
+            updateProgressBar();
+            resetAutoPlayTimer();
+        }
+
+        function nextSlide() {
+            showSlide(currentSlideIndex + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlideIndex - 1);
+        }
+
+        function updateCounter() {
+            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentSlideIndex + 1) / slides.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playPauseBtn');
+            
+            if (isPlaying) {
+                btn.textContent = '⏸ Pausa';
+                startAutoPlay();
+            } else {
+                btn.textContent = '▶ Play';
+                clearInterval(autoPlayInterval);
+            }
+        }
+
+        function startAutoPlay() {
+            if (!isPlaying) return;
+
+            clearInterval(autoPlayInterval);
+            autoPlayInterval = setInterval(() => {
+                if (isPlaying) {
+                    nextSlide();
+                }
+            }, AUTO_PLAY_INTERVAL);
+        }
+
+        function resetAutoPlayTimer() {
+            if (isPlaying) {
+                startAutoPlay();
+            }
+        }
+
+        function showNoImages() {
+            const slideshowDiv = document.getElementById('slideshow');
+            slideshowDiv.innerHTML = '<div class="no-images">📁 Nessuna foto trovata in /images/</div>';
+            document.querySelector('.controls').style.display = 'none';
+        }
+
+        // Avvia il caricamento
+        document.addEventListener('DOMContentLoaded', loadImages);
+    </script>
+</body>
+</html>
