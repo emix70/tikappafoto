@@ -3,190 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slideshow Foto</title>
+    <title>Gallery Foto</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Playfair+Display:wght@600;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
-        }
-
-        .container {
-            width: 95%;
-            max-width: 1000px;
-            background: rgba(22, 33, 62, 0.95);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-        }
-
-        .slideshow-wrapper {
-            position: relative;
-            width: 100%;
-            background: #000;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-        }
-
-        .slideshow {
-            position: relative;
-            width: 100%;
-            padding-bottom: 75%;
-            height: 0;
-            overflow: hidden;
-        }
-
-        .slide {
-            position: absolute;
-            top: 0;
-            left: 0;
+        html, body {
             width: 100%;
             height: 100%;
-            opacity: 0;
-            transition: opacity 0.8s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Courier Prime', monospace;
+            overflow-x: hidden;
             user-select: none;
             -webkit-user-select: none;
         }
 
-        .slide.active {
-            opacity: 1;
+        .header {
+            padding: 60px 40px 40px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
         }
 
-        .slide img {
-            max-width: 100%;
-            max-height: 100%;
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .gallery-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #1a1a1a;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+            group: true;
+        }
+
+        .gallery-item:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(255, 255, 255, 0.1);
+            transform: translateY(-8px);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-user-drag: none;
+            oncontextmenu: return false;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .gallery-item:hover .overlay {
+            padding: 25px;
+        }
+
+        .caption {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #fff;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+            animation: backdropFade 0.4s ease;
+        }
+
+        @keyframes backdropFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .modal-image {
+            max-width: 90vw;
+            max-height: 80vh;
             object-fit: contain;
+            animation: zoomIn 0.4s cubic-bezier(0.23, 1, 0.320, 1);
             pointer-events: none;
             user-select: none;
             -webkit-user-select: none;
             -webkit-user-drag: none;
         }
 
-        .caption {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-            padding: 30px 20px 20px;
-            font-size: 18px;
-            font-weight: 500;
-            text-align: center;
-            word-wrap: break-word;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
+        @keyframes zoomIn {
             from {
-                transform: translateY(20px);
                 opacity: 0;
+                transform: scale(0.9);
             }
             to {
-                transform: translateY(0);
                 opacity: 1;
+                transform: scale(1);
             }
         }
 
-        .controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
+        .modal-caption {
             margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
             font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .counter {
-            font-size: 16px;
-            font-weight: 600;
-            min-width: 120px;
+            font-weight: 700;
+            letter-spacing: 1px;
             text-align: center;
-            background: rgba(102, 126, 234, 0.2);
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            animation: fadeUp 0.5s ease 0.1s both;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            margin-top: 20px;
-            overflow: hidden;
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s linear;
-        }
-
-        .info {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .nav-arrow {
+        .modal-close {
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.3);
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            border: none;
             width: 50px;
             height: 50px;
             border-radius: 50%;
+            font-size: 28px;
             cursor: pointer;
-            font-size: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -196,250 +237,275 @@
             -webkit-user-select: none;
         }
 
-        .nav-arrow:hover {
-            background: rgba(255, 255, 255, 0.6);
-            transform: translateY(-50%) scale(1.1);
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
         }
 
-        .nav-arrow.prev {
-            left: 15px;
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 0;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        .nav-arrow.next {
-            right: 15px;
+        .modal-nav:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-nav.prev {
+            left: 20px;
+        }
+
+        .modal-nav.next {
+            right: 20px;
+        }
+
+        .modal-counter {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .no-images {
             text-align: center;
-            padding: 60px 20px;
+            padding: 100px 40px;
             font-size: 18px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.5);
         }
 
-        @media (max-width: 600px) {
-            .container {
+        .loading {
+            text-align: center;
+            padding: 60px 40px;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 40px 20px 30px;
+            }
+
+            .header h1 {
+                font-size: 36px;
+            }
+
+            .gallery-container {
+                padding: 40px 20px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 20px;
+            }
+
+            .modal-content {
                 padding: 20px;
             }
 
-            .caption {
-                font-size: 14px;
-                padding: 20px 15px 15px;
+            .modal-image {
+                max-width: 95vw;
+                max-height: 70vh;
             }
 
-            .nav-arrow {
+            .modal-close,
+            .modal-nav {
                 width: 40px;
                 height: 40px;
-                font-size: 18px;
+                font-size: 20px;
             }
 
-            button {
-                padding: 10px 18px;
-                font-size: 14px;
+            .modal-nav.prev {
+                left: 10px;
             }
 
-            .counter {
-                font-size: 14px;
-                padding: 8px 16px;
+            .modal-nav.next {
+                right: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="slideshow-wrapper">
-            <div class="slideshow" id="slideshow">
-                <!-- I slide vengono inseriti qui via JavaScript -->
+    <div class="header">
+        <h1>GALLERY</h1>
+        <p>CLICK TO EXPAND</p>
+    </div>
+
+    <div class="gallery-container">
+        <div class="loading" id="loading">📸 Loading images...</div>
+        <div class="gallery-grid" id="gallery" style="display: none;"></div>
+        <div class="no-images" id="noImages" style="display: none;">
+            📁 No images found in /images/<br>
+            <small style="font-size: 12px; margin-top: 10px;">Add JPG, JPEG, PNG files to the images folder</small>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <button class="modal-nav prev" onclick="prevImage()">❮</button>
+            <img class="modal-image" id="modalImage" alt="" oncontextmenu="return false">
+            <div class="modal-caption" id="modalCaption"></div>
+            <button class="modal-nav next" onclick="nextImage()">❯</button>
+            <div class="modal-counter">
+                <span id="modalCurrent">1</span> / <span id="modalTotal">1</span>
             </div>
-            <button class="nav-arrow prev" id="prevBtn" onclick="previousSlide()">❮</button>
-            <button class="nav-arrow next" id="nextBtn" onclick="nextSlide()">❯</button>
-        </div>
-
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-
-        <div class="controls">
-            <button id="playPauseBtn" onclick="togglePlayPause()">⏸ Pausa</button>
-            <button onclick="previousSlide()">⬅ Precedente</button>
-            <button onclick="nextSlide()">Successivo ➡</button>
-            <div class="counter">
-                <span id="currentSlide">1</span> / <span id="totalSlides">0</span>
-            </div>
-        </div>
-
-        <div class="info">
-            <p>💡 Protezione attiva: il download è disabilitato</p>
         </div>
     </div>
 
     <script>
-        let slides = [];
-        let currentSlideIndex = 0;
-        let isPlaying = true;
-        let autoPlayInterval;
-        const AUTO_PLAY_INTERVAL = 4000; // 4 secondi tra una foto e l'altra
+        let images = [];
+        let currentModalIndex = 0;
 
-        // Blocca il destro del mouse e le azioni di copia
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
-        document.addEventListener('keydown', (e) => {
+        // Protezione
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('dragstart', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
             if (e.ctrlKey && (e.key === 'c' || e.key === 's')) e.preventDefault();
             if (e.key === 'PrintScreen') e.preventDefault();
         });
 
-        // Blocca drag and drop
-        document.addEventListener('dragstart', (e) => e.preventDefault());
-        document.addEventListener('drop', (e) => e.preventDefault());
-
         async function loadImages() {
             try {
-                // Prova a caricare il manifest JSON (se disponibile)
-                const response = await fetch('./images-manifest.json');
-                if (response.ok) {
-                    const manifest = await response.json();
-                    slides = manifest.map(filename => ({
-                        src: `./images/${filename}`,
-                        name: filename.replace(/\.[^/.]+$/, '')
+                // Prova manifest prima
+                const manifestRes = await fetch('./images-manifest.json');
+                if (manifestRes.ok) {
+                    const fileList = await manifestRes.json();
+                    images = fileList.map(name => ({
+                        src: `./images/${name}`,
+                        name: name.replace(/\.[^/.]+$/, '')
                     }));
                 } else {
-                    // Fallback: carica manualmente aggiungendo le immagini
-                    slides = await loadImagesManually();
+                    throw new Error('No manifest');
                 }
-            } catch (error) {
-                console.log('Caricamento da manifest non disponibile, provo con API');
-                slides = await loadImagesWithAPI();
+            } catch {
+                // Fallback: prova API listing
+                try {
+                    const res = await fetch('./images/');
+                    const html = await res.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const links = doc.querySelectorAll('a');
+                    
+                    const imageFiles = Array.from(links)
+                        .map(a => a.getAttribute('href'))
+                        .filter(href => /\.(jpg|jpeg|png|gif|webp)$/i.test(href))
+                        .sort();
+
+                    images = imageFiles.map(name => ({
+                        src: `./images/${name}`,
+                        name: name.replace(/\.[^/.]+$/, '')
+                    }));
+                } catch {
+                    console.log('Could not load images');
+                }
             }
 
-            if (slides.length === 0) {
-                showNoImages();
+            renderGallery();
+        }
+
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            const loading = document.getElementById('loading');
+            const noImages = document.getElementById('noImages');
+
+            loading.style.display = 'none';
+
+            if (images.length === 0) {
+                noImages.style.display = 'block';
                 return;
             }
 
-            renderSlideshow();
-            startAutoPlay();
-        }
+            gallery.style.display = 'grid';
+            gallery.innerHTML = '';
 
-        async function loadImagesWithAPI() {
-            try {
-                const response = await fetch('./images/');
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const links = doc.querySelectorAll('a');
-                
-                const imageFiles = Array.from(links)
-                    .map(a => a.getAttribute('href'))
-                    .filter(href => /\.(jpg|jpeg|png|gif|webp)$/i.test(href))
-                    .sort();
-
-                return imageFiles.map(filename => ({
-                    src: `./images/${filename}`,
-                    name: filename.replace(/\.[^/.]+$/, '')
-                }));
-            } catch (error) {
-                console.log('Impossibile caricare da API, aggiungi manualmente le foto');
-                return [];
-            }
-        }
-
-        function loadImagesManually() {
-            // Se usi un server che supporta listing, aggiungi i nomi qui manualmente
-            // O usa un manifest JSON
-            return [];
-        }
-
-        function renderSlideshow() {
-            const slideshowDiv = document.getElementById('slideshow');
-            slideshowDiv.innerHTML = '';
-
-            slides.forEach((slide, index) => {
-                const slideDiv = document.createElement('div');
-                slideDiv.className = `slide ${index === 0 ? 'active' : ''}`;
-                slideDiv.innerHTML = `
-                    <img src="${slide.src}" alt="${slide.name}" oncontextmenu="return false">
-                    <div class="caption">${slide.name}</div>
+            images.forEach((img, index) => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.innerHTML = `
+                    <img src="${img.src}" alt="${img.name}" oncontextmenu="return false">
+                    <div class="overlay">
+                        <div class="caption">${img.name}</div>
+                    </div>
                 `;
-                slideshowDiv.appendChild(slideDiv);
+                item.onclick = () => openModal(index);
+                gallery.appendChild(item);
             });
 
-            document.getElementById('totalSlides').textContent = slides.length;
-            updateCounter();
+            document.getElementById('modalTotal').textContent = images.length;
         }
 
-        function showSlide(index) {
-            if (slides.length === 0) return;
+        function openModal(index) {
+            currentModalIndex = index;
+            const modal = document.getElementById('modal');
+            const img = images[index];
+            document.getElementById('modalImage').src = img.src;
+            document.getElementById('modalCaption').textContent = img.name;
+            document.getElementById('modalCurrent').textContent = index + 1;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
 
-            if (index >= slides.length) {
-                currentSlideIndex = 0;
-            } else if (index < 0) {
-                currentSlideIndex = slides.length - 1;
-            } else {
-                currentSlideIndex = index;
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function nextImage() {
+            currentModalIndex = (currentModalIndex + 1) % images.length;
+            const img = images[currentModalIndex];
+            document.getElementById('modalImage').src = img.src;
+            document.getElementById('modalCaption').textContent = img.name;
+            document.getElementById('modalCurrent').textContent = currentModalIndex + 1;
+        }
+
+        function prevImage() {
+            currentModalIndex = (currentModalIndex - 1 + images.length) % images.length;
+            const img = images[currentModalIndex];
+            document.getElementById('modalImage').src = img.src;
+            document.getElementById('modalCaption').textContent = img.name;
+            document.getElementById('modalCurrent').textContent = currentModalIndex + 1;
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', e => {
+            if (document.getElementById('modal').classList.contains('active')) {
+                if (e.key === 'ArrowRight') nextImage();
+                if (e.key === 'ArrowLeft') prevImage();
+                if (e.key === 'Escape') closeModal();
             }
+        });
 
-            const allSlides = document.querySelectorAll('.slide');
-            allSlides.forEach(slide => slide.classList.remove('active'));
-            allSlides[currentSlideIndex].classList.add('active');
-
-            updateCounter();
-            updateProgressBar();
-            resetAutoPlayTimer();
-        }
-
-        function nextSlide() {
-            showSlide(currentSlideIndex + 1);
-        }
-
-        function previousSlide() {
-            showSlide(currentSlideIndex - 1);
-        }
-
-        function updateCounter() {
-            document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
-        }
-
-        function updateProgressBar() {
-            const progress = ((currentSlideIndex + 1) / slides.length) * 100;
-            document.getElementById('progressFill').style.width = progress + '%';
-        }
-
-        function togglePlayPause() {
-            isPlaying = !isPlaying;
-            const btn = document.getElementById('playPauseBtn');
-            
-            if (isPlaying) {
-                btn.textContent = '⏸ Pausa';
-                startAutoPlay();
-            } else {
-                btn.textContent = '▶ Play';
-                clearInterval(autoPlayInterval);
-            }
-        }
-
-        function startAutoPlay() {
-            if (!isPlaying) return;
-
-            clearInterval(autoPlayInterval);
-            autoPlayInterval = setInterval(() => {
-                if (isPlaying) {
-                    nextSlide();
-                }
-            }, AUTO_PLAY_INTERVAL);
-        }
-
-        function resetAutoPlayTimer() {
-            if (isPlaying) {
-                startAutoPlay();
-            }
-        }
-
-        function showNoImages() {
-            const slideshowDiv = document.getElementById('slideshow');
-            slideshowDiv.innerHTML = '<div class="no-images">📁 Nessuna foto trovata in /images/</div>';
-            document.querySelector('.controls').style.display = 'none';
-        }
-
-        // Avvia il caricamento
-        document.addEventListener('DOMContentLoaded', loadImages);
+        loadImages();
     </script>
 </body>
 </html>
